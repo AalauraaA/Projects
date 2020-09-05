@@ -1,0 +1,17 @@
+Respons for handin lecture 3. 
+
+I think you did a good job, but there are some issues:
+1. line 49, when you define your model you use the wrong mean (this change all the results).
+That's a minor issue given by a copy-paste practice I guess, but be careful about that in the future.
+
+2. It is not clear to me how you compute the accuracy (line 90):
+your variable called percentile is the misclassified rate multiplied by 100. 
+This is not what we are asking for. 
+Just rewrite it as: 1-np.count_nonzero(resultat-tst_xy_class)/len(resultat),
+ and you'll have the accuracy.
+
+3. I see that in the classification function you use a for loop. 
+I am not sure if this is actually needed, as mod_x.pdf should handle vector data. 
+If there is something unclear, we can discusses it next week after Zheng-Hua class. 
+
+Daniel  

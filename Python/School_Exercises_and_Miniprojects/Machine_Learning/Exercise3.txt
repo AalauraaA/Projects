@@ -1,0 +1,6 @@
+Exercise
+This assignment is based on the previously generated 2-dimensional data of the three classes (5, 6 and 8) from the MNIST database of handwritten digits. First, mix the 2-dimensional data (training data only) by removing the labels and then use one Gaussian mixture model to model them. Secondly, compare the Gaussian mixture model with the Gaussian models trained in the previous assignment, in terms of mean and variance values as well as through visualisation.
+
+The 2-dimensional data can also be downloaded here.
+
+Optionally, you can use VOICEBOX: Speech Processing Toolbox for MATLAB.

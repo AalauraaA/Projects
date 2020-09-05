@@ -1,0 +1,4 @@
+Exercise
+Implement AdaBoost for the MNIST database OR improve a system that you have developed (choose features and classifiers as you like). A tutorial on AdaBoost is available here, which is another variant of AdaBoost. (Optionally choose two-class or multi-class.)
+
+Submit your assignments according to the template (use your initials as the group ID, e.g. AA_BB_CC). 

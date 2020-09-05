@@ -1,0 +1,6 @@
+Exercise
+Choose one of the following exercises:
+
+1) Go to TensorFlow's playground. Use the "Exclusive or" data with 70% training, noise setting of 50, and batch size of 10. Your task is to achieve as low a test error as possible, while keeping in mind that the network should generalize well to new data points (avoid overfitting). Hand-in a screen capture of your best performance, and briefly discuss important contributors (such as network depth, activation function, etc.).
+
+2) Install TensorFlow. Follow the "get started" tutorials on the MNIST dataset: MNIST for ML Beginners and Deep MNIST for Experts. 

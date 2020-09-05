@@ -1,0 +1,2 @@
+Exercise
+Perform classification for the entire MNIST dataset by using LIBSVM -- A Library for Support Vector Machines.
