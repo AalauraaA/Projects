@@ -1,0 +1,296 @@
+---
+title: "Exam"
+author: "Laura Nyrup Mogensen"
+date: "7/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(spatstat)
+library(RandomFields)
+
+```
+
+## Cox Processes
+Simulation of a Matérn cluster Process:
+```{r}
+# Parameters
+kappa1 = 15
+scale1 = 0.09
+mu1 = 6.5
+
+X = rMatClust(kappa1, scale1, mu1) # point process
+
+# Visualization of point process
+plot(X, "Matérn Cluster Process")
+
+npoints(X)
+# there is 66 points
+```
+
+Simulation of a Thomas Process:
+```{r}
+# Parameters
+kappa2 = 23.5
+scale2 = 0.05
+mu2 = 2.6
+
+Y = rThomas(kappa2, scale2, mu2) # Point Process
+
+# Visualization of the point process
+plot(Y, "Thomas Proces")
+
+npoints(Y)
+# there is 68 points
+```
+
+Simulation of arbitrary Neyman-Scott Processes:
+```{r}
+# Parameters
+kappa3 = 9
+rmax = 3
+
+
+thin <- function(x,y,r,x0,y0)
+{
+  ifelse((x-x0)^2 + (y-y0)^2 < r^2, 0, 1)
+}
+
+nclust <- function(x0, y0, r1, r2, beta)
+{
+  num = rpois(1, beta)
+  xc = runifdisc(num, r2, centre=c(x0, y0))
+  xc = rthin(xc, thin, r=r1, x0=x0, y0=y0)
+}
+
+Z <- rNeymanScott(kappa3, rmax, nclust, r1=0.2, r2=5, beta=2)
+
+# Visualization of point process
+plot(Z, "Neyman-Scott Process")
+
+npoints(Z)
+# there is 12 points
+```
+
+Visualization of the `redwood` data set:
+```{r}
+plot(redwood)
+npoints(redwood)
+# there is 62 points
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Log Point Process
+```{r}
+mu = 5
+var = 0.2
+scale = 0.1
+```
+
+Simulation of a Gaussian Log Point Process
+```{r}
+X1 = rLGCP("gauss", mu, var, scale) # delta = 2
+Random_field1 = attr(X1, "Lambda"); Random_field1
+plot(Random_field1, "Gaussian covariance")
+points(X1)
+```
+
+Simulation of a exponential Log Point Process:
+```{r}
+X2 = rLGCP("exp", mu, var, scale)   # delta = 1
+Random_field2 = attr(X2, "Lambda"); Random_field2
+plot(Random_field2, "Exponential covariance")
+points(X2)
+```
+
+Simulation of Power Exponential family
+```{r}
+mu = 5
+var = 0.2
+scale = 0.1
+alpha = 0.1
+
+X3 = rLGCP("stable", mu, var, scale, alpha)
+Random_field3 = attr(X3, "Lambda"); Random_field3
+plot(Random_field3, "Power exponential covariance")
+points(X3)
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Poisson Point Process
+Simulation of a homogen Poisson Process with intensity `lambda = 100` on the unit square in R2.
+```{r}
+lambda = 100
+Homogen_Poisson = rpoispp(lambda, lmax=NULL, owin(c(0,1),c(0,1))) # Laver en Poisson punkt proces
+plot(Homogen_Poisson)
+```
+
+Simulation of a inhomogen Poisson Process with intensity `lambda = 100` on the square [-1, 1] × [-1, 1] in R2.
+```{r}
+lambda = function(x,y,a,b) {a*dnorm(x,0,b)*dnorm(y,0,b)}
+
+Inhomogen_Poisson = rpoispp(lambda, win=owin(c(-1,1),c(-1,1)),a=100,b=0.3); Inhomogen_Poisson
+plot(Inhomogen_Poisson)
+```
+
+Simulation of a thinning of a Poisson Point Process:
+```{r}
+lambda = 300
+w = owin(c(-1,1),c(-1,1))
+X = rpoispp(300, win=w)
+plot(X, "Poisson punkt proces")
+
+p = function(x,y) 
+{ 
+  ifelse(x^2 + y^2 < 0.2, 1, 0.2) 
+}
+
+Y = rthin(X, p)           # Ny Poisson proces
+plot(Y, "Udtyndet Poissen punkt proces")
+# rthin bruger en punkt proces og en sandsynlighed for at beholde et punkt som input
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Thomas Point Process
+For simulation of the Thomas Point Process the `redwood` data set will be use for the minimum contrast estimation.
+```{r}
+data(redwood)
+summary(redwood) # Giver information om data
+plot(redwood)
+```
+
+The summary statistics of the pair correlation function.
+```{r}
+env = envelope(redwood, fun = pcf, nsim = 39)
+plot(env, ylim=c(0,5)) # Vi ser de teoretiske og observeret data for PCF
+```
+
+Estimation of the intensity with kernels-
+```{r}
+intensity = density.ppp(redwood, 0.05) # sigma er valg til at være 0.05
+plot(intensity)
+points(redwood)
+```
+
+The fitting model - the Thomas Process -- is performed with the K-function as a theoretical value.
+```{r}
+model = thomas.estK(redwood)
+plot(model, main = c("Thomas proces", "fit ved minimum kontrast"))
+model # Giver information om modellen:
+```
+
+Lets simulate the Thomas process.
+```{r}
+para = model$modelpar
+Xsim = rThomas(kappa=para[1], sigma=para[2], mu=para[3])
+plot(Xsim)
+```
+
+Lets make a model check and visual comparison of the simulation and the data.
+```{r}
+par(mfrow=c(1,2))
+Xsim = rThomas(kappa=para[1], sigma=para[2], mu=para[3])
+plot(redwood)
+plot(Xsim)
+par(mfrow=c(1,1))
+```
+
+```{r}
+rm(list = ls())
+```
+
+## Summary Statistics
+I will be using the data set `redwood` and `cells`.
+```{r}
+plot(redwood)
+plot(cells)
+```
+
+Lets look at their K, L, F, G og J-functions
+```{r}
+K1 = Kest(redwood)
+L1 = Lest(redwood)
+F1 = Fest(redwood)
+G1 = Gest(redwood)
+J1 = Jest(redwood)
+
+K2 = Kest(cells)
+L2 = Lest(cells)
+F2 = Fest(cells)
+G2 = Gest(cells)
+J2 = Jest(cells)
+
+par(mfrow=c(1,2))
+plot(K1); plot(K2)
+plot(L1); plot(L2)
+plot(F1); plot(F2)
+plot(G1); plot(G2)
+plot(J1); plot(J2)
+```
+
+`redwood` lays above the Poisson process which mean that `redwood` is clustered. `cells` laysr below the Poisson process which mean that `cells` is regular.
+
+If L is plotted as L(r) with r as it default.
+```{r}
+plot(L1,.-r~r); plot(L2,.-r~r)
+```
+
+A point-wise envelopes based on 39 simulations for a homogen Poisson proces
+```{r}
+e1 = envelope(redwood, Lest, nsim=39) 
+e2 = envelope(cells, Lest, nsim=39)
+plot(e1, .-r~r); plot(e2, .-r~r)
+```
+
+Same conlusion is made for `redwood` and `cells`.
+
+```{r}
+rm(list = ls())
+```
+
+## MCMC
+Defining a MCMC for Strauss process on a unit square
+```{r}
+nr = 10000    # Antal gentagelser i MCMC
+nv = 0        # Printer hvor lang algoritmen er nået hver nv'th step. 0 = ingen print
+
+model1 = list(cif="strauss", par=list(beta=200, gamma=0.2, r=0.07), w=c(0,1,0,1))
+model2 = list(cif="strauss", par=list(beta=100, gamma=0.2, r=0.07), w=c(0,1,0,1))
+model3 = list(cif="strauss", par=list(beta=200, gamma=0.2, r=1), w=c(0,1,0,1))
+model4 = list(cif="strauss", par=list(beta=200, gamma=0.2, r=0.01), w=c(0,1,0,1))
+model5 = list(cif="strauss", par=list(beta=200, gamma=0.1, r=0.07), w=c(0,1,0,1))
+model6 = list(cif="strauss", par=list(beta=200, gamma=1, r=0.07), w=c(0,1,0,1))
+
+start = list(n.start=80)
+control1 = list(nrep=nr, nverb=nv)
+
+X1 = rmh(model=model1, start=start, control=control1)
+X2 = rmh(model=model2, start=start, control=control1)
+X3 = rmh(model=model3, start=start, control=control1)
+X4 = rmh(model=model4, start=start, control=control1)
+X5 = rmh(model=model5, start=start, control=control1)
+X6 = rmh(model=model6, start=start, control=control1)
+
+npoints(X1); plot(X1, "Strauss proces, beta = 200")
+npoints(X2); plot(X2, "Strauss proces, beta = 100")
+npoints(X3); plot(X3, "Strauss proces, r = 1")
+npoints(X4); plot(X4, "Strauss proces, r = 0.01")
+npoints(X5); plot(X5, "Strauss proces, gamma = 0.1")
+npoints(X6); plot(X6, "Strauss proces, gamma = 1")
+```
+
+```{r}
+rm(list = ls())
+```

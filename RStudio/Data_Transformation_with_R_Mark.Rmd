@@ -81,4 +81,201 @@ filter(flights, is.na(arr_time)) # finds all the rows of arr_time with NA values
 ```
 
 ### `arrange()` Function
+The `arrange()` function change the order of the rows of a data set. The input to the function is the data frame and a set of columns names to order by. 
+
+Lets arrange the `nycflights13::flights` data set after the columns `year`, `month` and `day`.
+```{r}
+arrange(flights, year, month, day)
+```
+
+By including `desc()` in the `arrrange()` function the ordering will be done in descending order. Lets try it out with ordering according to the `dep_delay` column.
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+The missing values of the columns will always be sorted/ordered such that the laids in the end of the column. This applies for both ascending and descending order. If you want to sort/order according to the missing values you should use the `is.na()` function within the `arrange()` with the `desc()`.
+```{r}
+arrange(flights, desc(is.na(arr_delay)))
+```
+
+## `select()` Function
+The `select()` function is used to narrow down the number of variables within the data set. The `select()` function select the variables of interest and make a subset with those variables.
+
+If we want to only look at the columns `year`, `month` and `day` within the `nycflights13::flights` data set the `select()` function is the function to use.
+```{r}
+select(flights, year, month, day)
+```
+
+You can also use the slice operator to select variables. `year:day` will be the same variables as the one written out above.
+```{r}
+select(flights, year:day)
+```
+
+You can also choose variable from the one you don't want to look at. `-(year:day)` selecet all other columns/variable than `year`, `month` and `day`.
+```{r}
+select(flights, -(year:day))
+```
+
+There are a lot of co-function within the `select()` function:
+
+* `starts_with("abc")`: matches names that begin with "abc"
+* `ends_with("xyz")`: matches names that end with "xyz"
+* `contains("ijk")`:  matches names that contain "ijk"
+* `matches("(.)\\1")`: select variables that match a regualr expression
+* `num_range("x", 1:3)`: matches `x1`, `x2` and `x3`
+* `everything()`: move the chosen variables to the front of the data frame
+
+Futhermore, `select()` can be used to rename columns/variables but it drops all the other variables. Instead use `rename()` such as:
+```{r}
+rename(flights, tail_num = tailnum)
+```
+
+## `mutate()` Function
+The `mutate()` function add new columns to the end of the data set which are functions of existing columns. The key property is that the function must be vectorised: it must take a vector of values as input, return a vector with the same number of values as output.
+
+* Arithmetic operators: `+`, `-`, `*`, `/` and `^`
+* Modular arithmetic `%/%` (integer divsion) and `%%` (remainder)
+* Logs `log()`, `log2()` and `log10()`
+* Offsets `lead()` and `lag()`
+* Cumulative and rolling agrgregates `cumsum()`, `sumprod()`, `cummin()`, `cummax()` and `cummean()`
+* Logical comparisons `<`, `>`, `<=`, `>=`, `!=` and `==`
+* Ranking `min_rank()`
+
+To illustrate this function I will be using a smaller data set with the `nycflights13::flights` data set.
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+  )
+```
+
+Within the `mutate()` function you can also use the new columns to make a new column.
+```{r}
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+With `transmute()` you're only keeping the new columns of the data set.
+```{r}
+transmute(flights,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+## `summarise()` Function
+The `summarise()` function collapses a data frame into a single row.
+```{r}
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+By combining `summarise()` with `group_by()` a more in depth analysis can be performed. Some useful function to be use with `summarise()` are:
+
+* Measure of location `mean(x)` and `median(x)`
+* Measure of spread `sd(x)`, `IQR(x)` and `mad(x)`
+* Measure of rank `min(x)`, `quantile(x, 0.25)` and `max(x)`
+* Measure of position `first(x)`, `nth(x,2)` and `last(x)`
+* Counts `n()`, `count()`, `sum()` and `n_distinct(x)`
+
+```{r}
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+You can combine more operations within the `summarise()` function.
+```{r}
+by_dest <- group_by(flights, dest)
+
+delay <- summarise(by_dest,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE)
+)
+
+delay <- filter(delay, count > 20, dest != "HNL")
+
+# It looks like delays increase with distance up to ~750 miles and then decrease. Maybe as flights get longer there's more ability to make up delays in the air?
+
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+```
+
+To make the code more readable you can use the pipe `%>%` easier the code. `x %>% f(y)` turns into `f(x, y)`, and `x %>% f(y) %>% g(z)` turns into `g(f(x, y), z)` and so on. You can use the pipe to rewrite multiple operations in a way that you can read left-to-right, top-to-bottom.
+```{r}
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+```
+
+With the pipe `%>%` the code is now read as group, then summarise, then filter. The only negative thing with the pipe `%>%` is that it does not work with `ggplot2`.
+
+The `summarise()` function do not work well with missing values as it would return `NA` in all rows if there is a missing value of the column. Instead one should use the `na.rm = TRUE` which remove all the missing values from the column of interest.
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay, na.rm = TRUE))
+```
+
+When looking at summarise data it is always a good idea to include the count as the summarise may include some wild conclusion.
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+
+Here we see on the last plot that there is in fact only one plane which is delay with more than 300 minutes. This can't be seen one the first plot.
+
+When looking at this sort of plot, it’s often useful to filter out the groups with the smallest numbers of observations, so you can see more of the pattern and less of the extreme variation in the smallest groups.
+```{r}
+delays %>% 
+  filter(n > 25) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+```
+
+It is possible to group by multiple variable where each summary peels off one level of the grouping.
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+
+(per_month <- summarise(per_day, flights = sum(flights)))
+
+(per_year  <- summarise(per_month, flights = sum(flights)))
+
+```
 

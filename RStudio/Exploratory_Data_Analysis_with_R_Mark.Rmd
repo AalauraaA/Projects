@@ -1,0 +1,58 @@
+---
+title: "Exploratory Data Analysis with R"
+author: "Laura Nyrup Mogensen"
+date: "7/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+#install.packages("tidyverse") 
+
+library(tidyverse)
+#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+#> ✔ ggplot2 3.3.0     ✔ purrr   0.3.4
+#> ✔ tibble  3.0.1     ✔ dplyr   0.8.5
+#> ✔ tidyr   1.0.3     ✔ stringr 1.4.0
+#> ✔ readr   1.3.1     ✔ forcats 0.5.0
+
+#tidyverse_update() # Update if necessary
+library(nycflights13)
+```
+With exploratory data analysis (EDA) there are two type of question that need to be answer to understand and investigate the data:
+
+* What type of variation occurs within my variables?
+* What type of covariation occurs between my variables?
+
+To answer those questions one need to understand the following terms:
+
+* A `variable` is a quantity, quality, or property that you can measure.
+* A `value` is the state of a variable when you measure it. 
+* An `observation` is a set of measurements made under similar conditions. An observation will contain several values, each associated with a different variable. 
+* `Tabular data` is a set of values, each associated with a variable and an observation. Tabular data is tidy if each value is placed in its own “cell”, each variable in its own column, and each observation in its own row.
+
+## Variation
+
+
+## Patterns & Models
+Patterns in your data provide clues about relationships. If a systematic relationship exists between two variables it will appear as a pattern in the data. If you spot a pattern, ask yourself:
+
+* Could this pattern be due to coincidence (i.e. random chance)?
+* How can you describe the relationship implied by the pattern?
+* How strong is the relationship implied by the pattern?
+* What other variables might affect the relationship?
+* Does the relationship change if you look at individual subgroups of the data?
+
+A scatterplot of `Old Faithful` eruption lengths versus the wait time between eruptions shows a pattern: longer wait times are associated with longer eruptions.
+```{r}
+ggplot(data = faithful) + 
+  geom_point(mapping = aes(x = eruptions, y = waiting))
+```
+
+
+
+
+
+

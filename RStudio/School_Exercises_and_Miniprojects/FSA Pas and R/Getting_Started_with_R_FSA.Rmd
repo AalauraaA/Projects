@@ -1,0 +1,992 @@
+---
+title: "Getting Startet with R"
+author: "Laura Nyrup Mogensen"
+date: "7/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Lecture 1: R BASICS
+## Part 1: Arithmetric and Linear Algebra
+```{r}
+2+2
+
+3*4
+
+1/3  # R has as default more decimals than there is shown
+
+# R know standar mathematical functions
+pi
+sqrt(2)
+
+# Save the result to variables
+a = 34+45 # or <- instead of =
+a
+
+# Vectors with c() which stands for concatenated
+c(1,5,-4)
+
+v = c(2,3,-5); v   
+
+w = 1:3; w  # colon : is use to sequential of numbers 1:3 mean 1, 2, 3
+
+v+w    # Addition
+
+v[2]   # Choose element 2 from v
+
+v[2:3] # Choose element 2 to 3 from v
+
+c(v,w) # Stack two vector into one long vector
+
+# Matrices
+A = matrix(1:9,3,3); A             # Column-wise
+B = matrix(1:9,3,3,byrow=TRUE); B  # Row-wise
+
+A[2,2]  # Entry [2,2]
+A[,2]   # column 2
+A[2,]   # row 2
+
+# Al operations on matrices and vectors are element-wise
+
+A+B     # Addition
+A*B     # Multiplication of element in A and B
+A^{-1}  # Inverting the elements in A
+exp(A)  # Perform the exsponential function of each entry
+
+A%*%B     # Matrix procukt
+solve(A)  # Matrix inverse - use to solve equation systems. Is not invertible right now
+A[3,3] = 0; A  # Change an element in entry [3,3]
+solve(A)  # Invert the matrix A. It is invertible now
+A %*% solve(A)  # Check if it is invertible. Not exactly the identity matric because of numerical computation
+round(A %*% solve(A))  # Make it the identity matrix
+```
+
+```{r}
+rm(list=ls())
+```
+
+## PART 1: Exercises
+### Exercise 1
+Make three vectors: x = (1,1,1,1,1), y = (1,2,3,4,5), z = (1^2,2^2,3^3,4^2,5^2). b) Make a matrix X with column x, y, and z. c) Calculate the matrix X (X^t X)^-1 X^t (hint: the command t is used for transposing)
+
+```{r}
+# a)
+x = rep(1,5); x
+y = 1:5; y
+z = (1:5)^2; z
+
+# b)
+X = matrix(c(x,y,z),5); X
+
+# c)
+X %*% solve(t(X)%*%X) %*% t(X)  # you will meet this formula when we begin to look at linear models
+```
+
+### Exercise 2
+Try to add two vectors and/or matrices that does not match in dimensions, and see if you can figure out what R does.
+```{r}
+A = matrix(1:9,3,3); A
+a = 1:3; a
+A+a  # a is repeated the appropriate number of times
+b = 1:2
+A+b  # a warning is given when the longer object length is not a multiple of the shorter one
+
+```
+
+### Exercise 3
+The solve command can also be used to solve systems of linear equations. Rewrite 
+    x - 2y +  z =  0
+        2y - 8z =  8
+  -4x + 5y + 9z = -9
+into matrix form, and use solve() to solve the system.
+```{r}
+A = matrix(c(1,-2,1,0,2,-8,-4,5,9),3,3,byrow=TRUE);A
+b = c(0,8,-9); b           
+x = solve(A,b); x  # solution - R does not care whether b is a row or column vector here
+A%*%x  # checking solution
+```
+
+```{r}
+rm(list=ls())
+```
+
+## PART 2: Data, data summaries og plotting
+Importing data using scan() - rather primitive.
+```{r}
+x = scan("data1.dat"); x  # note: make sure that you are in the correct working directory
+```
+
+Ttypically we need more something more advanced than a single vector for data - a data frame. Data frames looks like matrices and can be used to store data.
+```{r}
+data.frame(1:4,5:2,c(1,3,4,7))  # vectors get a row each
+
+data.frame(height=c(178,182,171),weight=c(72,76,71))  # the columns can be given meaningful names
+
+y = data.frame(student=c("Allan","Barney","Christian"),score=c(34,36,43));y  # can contain letters/words
+
+y[,2]  # same extraction notation as matrices
+
+y$score  # or use $ with column name
+
+names(y)  # names() can be used for checking the content of a complex object that can be extracted with $
+```
+
+Importing data using read.table()
+```{r}
+z = read.table("data2.dat"); z
+```
+
+The class function is generally useful for figuring out what you are working with.
+```{r}
+class(z)  # a data frame
+
+class(z$V1)  # a vector
+
+class(z$V2)  # a vector of integers
+
+class(z$V3)  # a factor is a vector of categories - we'll get back to this later
+
+class(z$V4)
+```
+
+If we are not satisfied with the class, we may be able to change it.
+```{r}
+as.character(z$V4)  # changing factor to characters of strings
+
+class(as.character(z$V4))  # now the class has changed
+
+z$V4 = as.character(z$V4) # saving into data
+
+class(z$V4)  # yup - class has changed in the data frame now
+```
+
+Other commands: as.numeric, as.vector, as.matrix, as.character, as.factor, as.integer. careful: they don't always do what you expect
+```{r}
+a = c(4,5,6); a
+
+b = as.factor(a); b
+
+as.numeric(b) # oops - numbers are just the numbers of the categories in some order
+
+as.numeric(as.character(a))  # better
+```
+
+There are also is.xxx commands for checking
+```{r}
+is.numeric(z$V1)
+
+is.numeric(z$V2)  # integers are also numeric
+
+is.numeric(z$V3)
+```
+
+R also has many buil-in datasets that we can play with. Plotting - the generic plot function.
+```{r}
+plot(cars$speed,cars$dist) # Scatter plot
+
+plot(cars$dist~cars$speed)  # the same, ~ means "as function of", note different order altså y,x men plotter x,y
+
+plot(cars$speed,cars$dist,pch=3,col="red",type="b")  # many things can be controlled in plot, pch er punkt type, col = farve, type = hvordan punkterne er
+
+plot(cars)  # complex objects can also be put into plot - what it does depends on the object
+```
+
+Note: plot is a generic plot function, that passes its arguments to other functions fx plot.default or plot.data.frame even though you only write plot(...) you may still need to look at the help for these other functions.
+
+lines() and points() can be used to add lines and points to an existing plot
+```{r}
+lines(cars$speed,cars$dist) 
+
+points(cars$speed,cars$dist,col="red",pch=5)
+```
+
+Specific plots - graphical data summaries.
+```{r}
+x = cars$speed;x
+
+y = cars$dist; y
+
+hist(x)  # histogram
+
+hist(x, breaks=10)  # good for getting an overview of data, giver flere søjler
+
+boxplot(x)  # boxplot contains 25,50,75 % quantiles, and whiskers
+
+boxplot(c(x,-7,4,44))  # changing data a bit - boxplot reveals potential outliers
+
+boxplot(x,y)  # good for comparing data (here it is of course meaningless)
+```
+
+Nnon-grahpical data-summaries.
+```{r}
+mean(x)    # Average
+
+median(x)  # Median
+
+var(x)     # Variance
+
+sd(x)      # Standard deviation
+
+range(x)   # Range
+
+quantile(x) # Quantiles
+
+summary(x)  # Summaries statistics
+```
+
+```{r}
+rm(list=ls())
+```
+
+## PART 2: Exercises
+### Exercise 1
+a) Consider the built-in dataset airquality, and find out what it contains. b) Try to plot the whole dataframe, and see what you get. c) Make a scatterplot of the ozone as a function of the temperature. d) Make a nicer plot by adding labels to the x and y axes, and a title on top of the plot (hint: check the help for plot.default and note that next goes within ""). e) Make a plot zoomed in on the x-values 70-80 (hing: same help page). f) Try plot(airquality$Ozone). What does it do? Change the scatter plot to a plot joining the measurements with line segments (hint: check the argument type in the help page for plot (not plot.default)). g) Make a histogram and a boxplot of the Ozone level.
+```{r}
+# a)
+#?airquality  # all the information
+names(airquality)  #  just checking the data.frame
+airquality  # note the NAs - missing data
+
+# b)
+plot(airquality)  # all pairwise scatterplots
+
+# c)
+plot(airquality$Temp,airquality$Ozone)
+
+# d)
+plot(airquality$Temp,airquality$Ozone,xlab="Temperature",ylab="Ozone",main="Plot of ozone and temperature")
+# if we wanted mathematical symbols on the plot, expression does this, for example
+
+plot(airquality$Temp,airquality$Ozone,xlab=expression(phi),ylab=expression(dot(x)^2),main=expression(y[x]))
+#?plotmath # the notation for expression
+
+# e)
+plot(airquality$Temp,airquality$Ozone,xlim=c(70,80))  # ylim used for y-axis
+
+# f)
+plot(airquality$Ozone)  # plot of ozone against index
+plot(airquality$Ozone,type="l")  # with line segments, note the missing data
+
+# g)
+hist(airquality$Ozone)  # skewed to the right
+boxplot(airquality$Ozone)
+```
+
+### Exercise 2
+a) Read the data data3.dat using read.table. b) Make some plots to investigate the data, as well as some non-graphical summaries.
+```{r}
+# a)
+dat = read.table("data3.dat",header=TRUE); dat
+
+# b) A few plots and data summaries
+plot(dat$x,dat$y)
+plot(dat$x,dat$z)
+hist(dat$y)
+mean(dat$y); median(dat$y); var(dat$y); sd(dat$y); range(dat$y); quantile(dat$y)
+
+```
+
+```{r}
+rm(list=ls()) 
+```
+
+## PART 3: Distributions in R
+R can be used for calculating density functions and distribution functions of most known distributions.
+```{r}
+dnorm(1,mean=0,sd=1)  # Density function (pdf) for normal dist. with mean 3 and sd 5 (sigma^2) evaluated at 1
+
+pnorm(1,mean=0,sd=1)  # Distribution function
+```
+
+Llet's plot them - the curve function is useful for plotting mathematical functions in R.
+```{r}
+curve(dnorm(x, mean=0, sd=1),from=-5,to=5)  # x must be called x in curve, det er bare et navn
+
+curve(pnorm(x, mean=0, sd=1),from=-5,to=5)
+```
+
+The inverse distribution function
+```{r}
+qnorm(0.8,mean=0,sd=1)
+```
+
+R can also simulate the distributions.
+```{r}
+rnorm(5,mean=0,sd=1)  # 5 simulations, tilfældige hver gang
+
+hist(rnorm(1000,mean=0,sd=1))  # histogram of 1000 simulations
+```
+
+Ffunction for handling distribution come with the following naming convention: first part: d = density function, p = distribution function, q = inverse distribution function, r = simulate. last part: distribution name, e.g. norm = normal, exp = exponential, gamma = gamma, t = t, binom = binomial, etc.
+```{r}
+curve(dgamma(x,shape = 3,rate=0.5),from=0,to=20)
+```
+
+```{r}
+rm(list=ls())
+```
+
+## PART 3: Exercises
+### Exercise 1
+a) Plot the density and distribution function for the t distribution with 3 degree of freedom. b) Make 50 simulations of this t-distribution, and make a histogram. Can you see that this is not a standard normal distribution? (hint: the curve command has an argument add=TRUE that allows you to add a plot on top of the histogram - try the add the normal density to the plot; note that this requires the histogram to integrate to one, which can be achieved by including the argument probability=TRUE to the hist command) c) Repeat exercise b with 10 degrees of freedom - can you still see that this is not a t-distribution?
+```{r}
+# a) density and distribution function of t distribution with df=3
+curve(dt(x,df=3),from=-5,to=5)  # looks a little like a normal distribution, but more heavy tails
+curve(pt(x,df=3),from=-5,to=5)
+
+# b)
+x = rt(50,df=3);x
+hist(x,probability=TRUE)
+curve(dnorm(x, mean=0, sd=1),add=TRUE)  # again normal-like but with heavy tails
+
+# c) 
+x = rt(50,df=10);x
+hist(x,probability=TRUE)
+curve(dnorm(x, mean=0, sd=1),add=TRUE)  # harder to see this is not normal
+# It is much harder too see that t with df=10 is not normal - we need better tests when we later need to check for normality
+```
+
+### Exercise 2
+a) The uniform distribution can be simulated using runif() - try it out. b) In your probability course you have probably learned how to simulate random variables using the inverse method (i.e. taking the inverse cumulative distribution funciton of the wanted distribution, and evaluating this at a uniform random value). For the exponential distribution this is done by calculating -log(1-U)/lambda, where U is a uniform random variable and lambda is the rate parameters of the exponential distribution. Use this for simulating a number of exponential random variables.
+```{r}
+# a) Simulate uniform distribution
+U = runif(50);U   # 50 simulations of the uniform distribution
+hist(U)  # looks uniform
+
+# b) Simulate exponential distribution using inverse method
+lambda = 1  # rate parameter
+X = -log(1-U)/lambda; X   # 50 simulations of the exponential distribution
+hist(X,prob=TRUE); curve(dexp(x,rate=1),add=TRUE)  # checking whether this looks like and exponential distribution
+# note that we could also have taken advantage of the fact that the inverse distribution function is implemented into R
+
+X = qexp(U,rate=lambda); X 
+hist(X,prob=TRUE); curve(dexp(x,rate=1),add=TRUE)  # the same
+# note that this algorithm is what is implemented into rexp()
+# In principle we could simulate any random variable in R using a qx (x = distribution name) function.
+# But this method is not always the fastest/most accurate
+```
+
+```{r}
+rm(list=ls()) 
+```
+
+# Lecture 2
+## Part 1. Packages and Programming
+If R don't consist of any necessary statistics then there is a chance that someone may have implemented the statistics in some package or file for R. Such package could be the `mvtnorm` which handled the multivariate normal distribution.
+```{r}
+install.packages("mvtnorm")
+
+library(mvtnorm)
+```
+
+With this package it is now possible to calculate the density of a simulated multivariate normal distribution.
+```{r}
+dmvnorm(c(1,2,2), mean=rep(0,3), sigma = diag(3))  # Evaluate a 3d standard normal density for c(1,2,2)
+```
+```{r}
+rmvnorm(5, mean=rep(0,3), sigma = diag(3))  # All rows are a simularion of the 3d standard normal distribution
+```
+
+If you don't know the other functions the package consist of you can use `library(help = " ")` to find out.
+```{r}
+#library(help = "mvtnorm")
+```
+
+Another useful package is the `rmarkdown` which is use to make report or slides with the text/math/R-output.
+```{r}
+install.packages("rmarkdown") 
+library(rmarkdown)
+```
+
+Lets render an example 
+```{r}
+render("markdown_example.Rmd")
+```
+
+There are thousands of other packages for specific needs. Google is a good way of finding out whether there is a package that suits your need. You can also make packages yourself. If there is nothing premade in R or any packages, you will need to program it yourself.
+
+### For Loops
+Calculate the 1 + 2 + ... + 10 as an example of how for loop is used.
+```{r}
+s = 0
+
+for (i in 1:10) s = s + i  # any vector can be used instead of 1:10
+
+s
+```
+
+### Fibonacci
+Print the first 10 numbers of Fibonacci
+```{r}
+f = rep(0,10) # A vector only consisting of zeroes
+
+f[1] = f[2] = 1
+
+for (i in 3:10)
+{
+  f[i] = f[i-2]+f[i-1]  # if you need multiple lines in the for loop, use {}
+}
+
+f
+```
+
+Note that built-in functions are usually faster than for-loops created from scratch
+
+### If-then-else Conditions
+Determining the sign of a number. The `if()` function do only take a single number as input and not a vector.
+```{r}
+x = -3
+
+if (x<0) {
+  signx = -1 
+} else if (x==0){
+  signx = 0
+} else signx = 1
+
+signx
+```
+
+### Functions
+Create a function for finding the sign of a number.
+```{r}
+signfct = function(x){  # notation: output = function(input1,input2,...){blablabla}
+  if (x<0) {
+    signx = -1 
+  } else if (x==0){
+    signx = 0
+  } else signx = 1
+  return(signx)
+}
+
+signfct(-3); signfct(0); signfct(0.2)
+```
+
+There exist a built-in function for finding the sign of a number.
+```{r}
+sign(-3); sign(0); sign(0.2)
+
+sign(-3:4)     # this will even take vectors or matrices
+
+signfct(-3:4)  # our function is not that smart, due to the if-condition only accepting a single term
+```
+
+The morale here is to always think about all the types of input you would like to have and try them out.
+
+```{r}
+rm(list=ls()) # Remove all the save variables
+```
+
+## Part 1: Exercises
+### Exercise 1
+Make a function with a for loop that with calculate the product of all the entries in an input vector. Compare with the built-in function `prod` (don't call your function prod, or you won't be able to use the built-in function).
+```{r}
+product1 = function(x) {
+  s = 1
+  for (i in x){
+    s = s * i
+  }
+  return(s)
+}
+```
+
+Another way to write a for loop could like this.
+```{r}
+product2 = function(x) {
+  s = 1
+  for (i in 2:length(x)){
+    s = s * x[i]
+  }
+  return(s)
+}
+```
+
+Lets compare the functions with the built-in function.
+```{r}
+x = c(1,-4,3,-6,2); product1(x); product2(x); prod(x)  # gives same result as the built-in function
+x = 1:100; product1(x); product2(x); prod(x)  # a rather big number
+x = 1:1000; product1(x); product2(x); prod(x)  # too big, R handles this with the value Inf
+```
+There all give the same output! Which function is fastest? We can use `Sys.time` for this.
+```{r}
+x = 1:100000 # 
+start_time = Sys.time(); product1(x); end_time = Sys.time(); end_time-start_time
+start_time = Sys.time(); product2(x); end_time = Sys.time(); end_time-start_time
+start_time = Sys.time(); prod(x); end_time = Sys.time(); end_time-start_time
+```
+Apparently our function number 2 is fastest, but the built-in function probably does some checking that takes time.
+
+### Exercise 2
+Make a function that will calculate the Fibonacci number up to n (an input parameter).
+```{r}
+fib = function(n){
+  if (n < 1) stop("Negative Number")
+  if (n<2) return(1)      # case n = 1
+  if (n<3) return(c(1,1)) # case n = 2
+  
+  f = rep(0,n)            # case n = 3,...
+  f[1] = f[2] = 1
+  
+  for (i in 3:n)
+  {
+  f[i] = f[i-2]+f[i-1]
+    }
+  return(f)
+}
+
+# Testing
+fib(7)
+fib(1) 
+fib(2)
+fib(-1) 
+fib(4.5)  # rounding down decimal numbers - we could add a error message instead
+```
+
+```{r}
+rm(list=ls())
+```
+
+## Part 2: Overview of statistical analysis, linear models, and regression 
+## Part 2: Exercises
+### Exercise 1
+Consider the built-in dataset cars. a) Make the design matrix X for a simple linear regression for cars (dist as a function of speed), b) Estimate beta. Plot the data and the estimated line in the same figure. (hint: the function abline is useful for plotting the line) and c) Estimate sigma^2.
+```{r}
+# a) Calculating the design matrix
+x = cars$speed; y = cars$dist; n = length(x)
+X = cbind(1,x)
+
+# b) Estimating beta and plotting the line
+bh = solve(t(X)%*%X) %*% t(X) %*% y; bh
+plot(cars)
+abline(bh)  # abline takes a 2d-vector containing the intercept and slope
+
+# c) Estimating the variance 
+sh2 = t(y-X%*%bh) %*% (y-X%*%bh) / (n-2); sh2
+sqrt(sh2)  # an estimate of the standard deviation
+```
+
+### Exercise 2
+Maybe a second order polynomial is better at capturing the relation between speed and distance? Redo exercise 1 with a second order polynomial (hint: you need curve for plotting the polynomial.)
+```{r}
+# a) 
+X2 = cbind(1,x,x^2); X2
+# b)
+bh2 = solve(t(X2)%*%X2) %*% t(X2) %*% y; bh2
+curve(bh2[1]+bh2[2]*x+bh2[3]*x^2,add=TRUE)
+sh22 = t(y-X2%*%bh2) %*% (y-X2%*%bh2) / (n-3); sh22
+sqrt(sh22)
+```
+
+
+### Exercise 3
+Consider the dataset trees a) Make the design matrix for a multiple regression model for modelling the tree volume as a function of girth and height and b) Estimate beta and sigma^2.
+```{r}
+# a)
+plot(trees)
+X3 = cbind(1,trees$Girth,trees$Height); X3
+
+# b)
+bh3 = solve(t(X3)%*%X3) %*% t(X3) %*% trees$Volume; bh3
+sh23 = t(trees$Volume-X3%*%bh3) %*% (trees$Volume-X3%*%bh3) / (31-3); sh23
+sqrt(sh23)
+```
+
+```{r}
+rm(list=ls())
+```
+
+## Part 3: The lm-function and ANOVA kind of models
+Obviously linear models are implemented into R - we use the lm function.
+```{r}
+mod1 = lm(cars$dist~cars$speed); mod1  
+```
+
+`y~x` is R formula language for `y = beta0 + beta1 * x + epsilon`. I.e. ignore the constand term, the parameters, and the error term if we don't want the constant term, we can write `y~-1+x`.
+
+The lm function creates an lm-class object with lots of content.
+```{r}
+class(mod1)
+names(mod1)
+summary(mod1)  # the estimate for beta and sigma can be found here
+```
+
+The estimated model can be plotted as:
+```{r}
+bh1 = coef(mod1); bh1 # we extract the estimates of beta into a vector (with names)
+plot(cars)
+abline(bh1)
+```
+
+If we want the second order polynomial, we should be careful:
+
+* `+`, `-`, `*` and `^` have special meanings in the R formula language
+
+If we enclose terms involving these in `I()`, they have their usual meaning.
+```{r}
+lm(trees$Volume~trees$Girth+trees$Height)    # y = beta0 + beta1*x1 + beta2*x2 + epsilon
+lm(trees$Volume~I(trees$Girth+trees$Height)) # y = beta0 + beta1*(x1+x2) + epsilon
+
+```
+
+Second order polynomial used to model cars:
+```{r}
+mod2 = lm(cars$dist~cars$speed + I(cars$speed^2)); mod2
+bh2 = coef(mod2)
+plot(cars)
+curve(bh2[1]+bh2[2]*x+bh2[3]*x^2,add=TRUE)
+```
+
+So far we have considered x to be continuous variables what if they are categorical, i.e. represent groups? Let's look at a slide on ANOVA (analysis of variance). We make a one-way ANOVA to compare different kinds of insect sprays.
+```{r}
+#?InsectSprays
+
+InsectSprays
+
+names(InsectSprays)
+class(InsectSprays$count); class(InsectSprays$spray)
+plot(InsectSprays$spray,InsectSprays$count)
+
+mod3 = lm(InsectSprays$count~InsectSprays$spray); mod3  # type A is the reference group here
+
+summary(mod3)
+```
+
+A two-way ANOVA (i.e. two factors):
+```{r}
+#?warpbreaks
+
+warpbreaks
+
+table(warpbreaks[,2:3])   # a quick overview of the number of combinations
+plot(warpbreaks[2:1])     # breaks vs wool type
+plot(warpbreaks[c(3,1)])  # breaks vs tension
+
+lm(breaks~wool+tension,data=warpbreaks)  # wool A and tension L are reference groups
+lm(breaks~wool+tension+wool:tension,data=warpbreaks)  # wool*tension is interaction
+```
+
+The model without interaction means that wool and tension have separate additive effects. Interaction means that different types of wool have different behavior depending on tension.
+
+To sum up: there are a lot of different terms that can go into a linear model as x all types can be combined.
+```{r}
+rm(list=ls())
+```
+
+## Part 3: Exercises
+### Exercise 1
+Consider the data ToothGrowth. The data contains two explanatory variables, a factor "supp" and a numeric variable "dose". We start by ignoring the factor. a) Plot the data (only len and dose). b) Model the relation between len and dose with a simple linear regression, and add the estimated line to the plot. c) Try a second order polynomium, and add the curve to the plot. Does it seem to fit better? d) And a third order polynomium. What happens here?
+```{r}
+# a) First order polynomium
+#?ToothGrowth
+plot(ToothGrowth$len~ToothGrowth$dose)  # even though there are only three levels, x is numeric
+
+mod1 = lm(len~dose,data=ToothGrowth)
+bh1 = coef(mod1)
+abline(bh1)
+
+# b) Second order polynomium
+mod2 = lm(len~dose + I(dose^2),data=ToothGrowth)
+bh2 = coef(mod2)
+curve(bh2[1]+bh2[2]*x+bh2[3]*x^2,add=TRUE)
+# Its not really obvious whether it is a good idea to include the second order term
+# We will return to this issue.
+
+# c) Third order polynomium
+mod3 = lm(len~dose + I(dose^2) + I(dose^3),data=ToothGrowth)
+coef(mod3)  # oops - contains NAs in the third order term
+coef(mod2)  # and the remaining coefficients are equal to the second order polynomial
+# The explanation is that the second order polynomial already fits as perfect as possible.
+# We need at data at other x-values to figure out whether we need a different function.
+# So for the current data, a third order polynomium is overparametrisation (we'll return to this)
+```
+
+### Exercise 2
+Now ignore dose in ToothGrowth. a) Plot the data (len vs supp). b) Model the relation with an ANOVA kind of model. Does it seem that OJ or VC yields the highest values for len?
+```{r}
+# a) 
+plot(ToothGrowth$len~ToothGrowth$supp)
+
+# b) 
+mod4 = lm(len~supp,data=ToothGrowth)
+co4 = coef(mod4); co4
+points(c(1,2),c(co4[1],co4[1]+co4[2]),col="red")
+```
+Both the plot and the estimates suggest that supp=OJ yields the highest values. 
+
+### Exercise 3
+Now all the data. a) Plot all the data (hint: try to plot len vs dose with col=ToothGrowth$supp to get different colors for each group). b) Make a model with both explanantory variable (only use a first order polynomial for dose). The model has the interpretation that we have different lines depending on the type in supp. They have the same slope (beta_dose). But different intercepts (beta_intercept or beta_intercept+beta_suppVC). Add both lines to the plot. c) Include an interaction term. Interaction between a continuous and categorical variable is simple: The lines can now have different slopes (beta_intercept or beta_intercept+beta_dose:suppVC) Include the lines in the plot (you may want to make a new plot).
+```{r}
+# a)
+plot(ToothGrowth$len~ToothGrowth$dose,col=ToothGrowth$supp)  # OJ = black, VC = red
+
+# b) Additive model for the two terms
+mod5 = lm(len~dose+supp, data=ToothGrowth)
+co5 = coef(mod5); co5  # supp=OJ is the reference group
+abline(c(co5[1],co5[2])); abline(co5[1]+co5[3],co5[2],col="red")
+
+# c) Model including the interaction term
+plot(ToothGrowth$len~ToothGrowth$dose,col=ToothGrowth$supp)
+mod6 = lm(len~dose+supp+dose:supp, data=ToothGrowth)
+co6 = coef(mod6); co6
+abline(c(co6[1],co6[2])); abline(co6[1]+co6[3],co6[2]+co6[4],col="red")
+```
+
+```{r}
+rm(list=ls())
+```
+
+# Lecture 3
+## Part 1: Confidence Intervals
+Lets repeate the simple linear regression of the data set `cars`.
+```{r}
+plot(cars)
+
+mod1 = lm(cars$dist~cars$speed)
+
+abline(coef(mod1))
+```
+
+The confidence interval is then found as, when it is written out.
+```{r}
+summary(mod1) # the column vector "Std. Error" is the expression hat(sigma)*sqrt(C_ii)
+
+tab = coef(summary(mod1)); tab  # this give us the whole table
+
+tab[2,1] + qt(c(0.025,0.975),50-2) * tab[2,2]  # 95% confidence interval for slope
+
+tab[1,1] + qt(c(0.025,0.975),50-2) * tab[1,2]  # 95% confidence interval for intercept
+
+```
+
+Confidence interval for `slope` lays above zero i.e. `speed` increase the `break distance. The confidence interval for `intercept`lays below zero. This is hard to conclude anything. However, the model perform ill for `speed = 0`.
+
+Lets find the confidence interval for both parameters of beta
+```{r}
+confint(mod1)              # 95% confidence interval is default
+
+confint(mod1, level=0.99)  # 99% confidence interval
+```
+
+Let try a model made from polynomial regression.
+```{r}
+mod2 = lm(cars$dist~cars$speed + I(cars$speed^2)); mod2
+
+bh2 = coef(mod2); curve(bh2[1]+bh2[2]*x+bh2[3]*x^2,add=TRUE)
+
+confint(mod2)
+```
+
+In this case all the intervals consist of zeros, this mean that a second order expression is not a good idea.
+
+```{r}
+rm(list=ls())
+```
+
+## Part 1: Exercises
+### Exercise 1
+Consider the data InsectSprays. a) (Re)make the linear model with insect count as a function of spray type. b) Calculate 95% confidence intervals for all beta parameters. Which groups are significantly better or worse than the reference group (group A)?
+```{r}
+# a)
+InsectSprays
+plot(InsectSprays$spray,InsectSprays$count)
+mod3 = lm(InsectSprays$count~InsectSprays$spray); mod3
+
+# b)
+confint(mod3)
+```
+
+Types C, D, E are significantly worse than A and types B, F are not significantly different that A
+
+### Exercise 2
+Consider the cars dataset. a) (Re)make the simple regression with breaking distance as a function of speed. b) Estimate the variance parameter (hint: you may find the function sigma() useful rather than making the calculation "by hand"). c) Calculate a 95%-confidence interval for sigma^2.
+```{r}
+# a) 
+mod1 = lm(cars$dist~cars$speed)
+summary(mod1)
+s2h = sigma(mod1)^2; s2h
+
+# b)
+c(s2h*(50-2)/qchisq(0.975,50-2),s2h*(50-2)/qchisq(0.025,50-2))  # 95% confidence interval
+```
+
+```{r}
+rm(list=ls())
+```
+
+## Part 2:  Hypothesis testing
+The trees dataset - t-tests for each beta parameter.
+```{r}
+mod2 = lm(Volume~Girth+Height, data=trees) 
+summary(mod2)
+```
+
+The column t value contains the test-statistics, Pr(>|t|) contains the p-value for the two-sided t-tests, the *'s mark significance and the F-statistics at the bottom is the all-or-nothing test.
+
+Lets look at the `cars` data set.
+```{r}
+mod1 = lm(cars$dist~cars$speed)
+summary(mod1)
+```
+
+Notice equal p-values for t and F test - also t=9.464 squared is F=89.57. These tests are equivalent, since the F-test removes all (=the only) non-constant terms.
+
+F-test with multiple terms.
+```{r}
+mod4 = lm(breaks~wool+tension,data=warpbreaks)
+summary(mod4)
+```
+
+We can see both terms tensionM or tensionH are significant. But to see whether tension is significant, it makes sense to tests these jointly.
+```{r}
+mod4r = lm(breaks~wool,data=warpbreaks)  # making model without tension
+anova(mod4r,mod4)  # the anova function can be used to compare two models - here with a F-test
+
+```
+
+```{r}
+rm(list=ls())
+```
+
+## Part 2: Exercises
+### Exercise 1
+Consider the dataset ToothGrowth. a) Make a linear model with tooth length modelled by supplement and dose (You are free to choose which model you would like to use.). b) Which terms are significant? Try to remove insignificant terms.
+```{r}
+# a) A model with len modelled as a second order polynomial dose for each supp type
+plot(ToothGrowth$len~ToothGrowth$dose,col=ToothGrowth$supp)  # OJ = black, VC = red
+mod7 = lm(len~(dose+I(dose^2))*supp, data=ToothGrowth)
+
+### same as 1 + dose + I(dose^2) + supp + dose:supp + I(dose^2):supp
+
+summary(mod7)
+
+# b) All the supp terms in this model are insignificant - but we can't remove them all based on individual t-tests. Let's try a test where we remove the three last terms at the same time (just for fun)
+mod7r = lm(len~(dose+I(dose^2)), data=ToothGrowth)
+anova(mod7,mod7r)  # nope - some of this is significant
+```
+
+Morale: be careful - adding or removing terms changes whether other terms are significant. 
+
+```{r}
+rm(list=ls())
+```
+
+## PART 3: Predictions
+We redo the model:
+```{r}
+plot(cars)
+mod1 = lm(dist~speed,data=cars)  # use data=cars, for the predict-function to work correctly later
+abline(coef(mod1))
+```
+
+The model gives a prediction of the breaking distance directly by insertion
+```{r}
+bh = coef(mod1)
+yh23 = bh[1] + bh[2]*23; yh23  # we use speed = 23 as an example
+points(23,yh23,col="red",pch=16)  # plotting this, pch is point type
+```
+
+Next we find a 95%-confidence interval, i.e. where does the "true" line go through
+```{r}
+x23 = data.frame(speed=23); x23
+yh23c = predict(mod1,x23,interval="confidence"); yh23c  # fit is equal to yh23 above, level=0.95 is default
+lines(c(23,23),yh23c[2:3],col="red",lw=4)  # plotting, lw is line width
+
+```
+
+Last the 95%-prediction interval, i.e. what is the breaking distance in a new experiment
+```{r}
+yh23p = predict(mod1,x23,interval="prediction"); yh23p
+lines(c(23,23),yh23p[2:3],col="blue",lw=1)  # plotting
+```
+
+Let's plot the confidence and prediction intervals for "all" value of speed
+```{r}
+x = data.frame(speed=(0:100)/4); x  # speed ranges from 0 to 25
+yhc = predict(mod1,x,interval="confidence"); yhc  
+yhp = predict(mod1,x,interval="prediction"); yhp
+plot(cars)
+lines(x$speed,yhc[,1],col="green")  # same as abline in this case
+lines(x$speed,yhc[,2],col="red")
+lines(x$speed,yhc[,3],col="red")
+lines(x$speed,yhp[,2],col="blue")
+lines(x$speed,yhp[,3],col="blue")
+```
+
+Notice that the confidence interval is smallest in the middle (same for prediction interval, but this is hard to see).
+
+```{r}
+rm(list=ls())
+```
+
+## PART 3: Exercises
+### Exercise 1
+Consider the cars data. a) (Re)make the second order polynomial regression (ignoring that the terms are insignificant). b) Make confidence and prediction intervals for the whole range of x, and plot these.
+```{r}
+# a) The second order model.
+mod2 = lm(dist~speed+I(speed^2),data=cars); mod2
+bh2 = coef(mod2)
+plot(cars)
+curve(bh2[1]+bh2[2]*x+bh2[3]*x^2,add=TRUE)
+
+# b) Confidence and prediction intervals for "all" x-values.
+x = data.frame(speed=(0:100)/4); x  # speed ranges from 0 to 25
+yhc = predict(mod2,x,interval="confidence"); yhc  
+yhp = predict(mod2,x,interval="prediction"); yhp
+plot(cars)
+lines(x$speed,yhc[,1],col="green")  # same as abline in this case
+lines(x$speed,yhc[,2],col="red")
+lines(x$speed,yhc[,3],col="red")
+lines(x$speed,yhp[,2],col="blue")
+lines(x$speed,yhp[,3],col="blue")
+```
+
+
+### Exercise 2
+a) Run the following code to simulate data (x,y), and assume that we only know (xred,yred)
+```{r}
+x = 1:200   # all the data
+y = 10^-5*x^3 + rnorm(50,0,1)
+xred = x[c(1:70)]
+yred = y[c(1:70)]  # the part of the data we have observed
+plot(xred,yred)
+```
+
+b) Fit a linear regression to (xred,yred), and plot it on the interval x=[0,200]. c) Make confidence and prediction intervals. What do they suggest for x=200? d) Include the missing data points in the plot (i.e. y for x=71:200). What do you think about the predictions?
+```{r}
+# a) simulating data
+x = 1:200   # all the data
+y = 10^-5*x^3 + rnorm(50,0,1)
+xred = x[c(1:70)]
+yred = y[c(1:70)]  # the part of the data we have observed
+plot(xred,yred)
+
+# b) Fitting simple regression
+simdat = data.frame(xred=xred,yred=yred)
+modsim = lm(yred~xred,data=simdat); modsim
+plot(xred,yred,xlim=c(0,200),ylim=c(-2,20))
+abline(coef(modsim))
+
+# c) Confidence and prediction intervals.
+yhc = predict(modsim,data.frame(xred=x),interval="confidence"); yhc
+yhp = predict(modsim,data.frame(xred=x),interval="prediction"); yhp
+lines(x,yhc[,1],col="green")
+lines(x,yhc[,2],col="red")
+lines(x,yhc[,3],col="red")
+lines(x,yhp[,2],col="blue")
+lines(x,yhp[,3],col="blue")
+yhc[200,]; yhp[200,]  # the confidence and prediction intervals for x=200
+# the plot suggests we can predict y for large xvalues, with some added uncertainty
+
+# d)
+points(x[71:200],y[71:200],col="purple")  # oops...
+```
+
+The true data was a third order polynomial, we fitted a first order polynonial. For the observed data it seemed ok to do this. But for much higher x values, the fit is terrible. Never trust a linear model far away from observed data.
+
+```{r}
+rm(list=ls())
+```
+
+
