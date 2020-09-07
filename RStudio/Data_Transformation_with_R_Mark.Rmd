@@ -1,0 +1,84 @@
+---
+title: "Data Transformation with R"
+author: "Laura Nyrup Mogensen"
+date: "5/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+#install.packages("tidyverse") 
+
+library(tidyverse)
+#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+#> ✔ ggplot2 3.3.0     ✔ purrr   0.3.4
+#> ✔ tibble  3.0.1     ✔ dplyr   0.8.5
+#> ✔ tidyr   1.0.3     ✔ stringr 1.4.0
+#> ✔ readr   1.3.1     ✔ forcats 0.5.0
+
+#tidyverse_update() # Update if necessary
+library(nycflights13)
+```
+
+To investigate the data transformation with R I will be using the `nycflights13::flights` data frame which consist of 336776 flights that departed from New York City in 2013.
+```{r}
+flights = nycflights13::flights
+flights
+```
+
+The `nycflights13::flights` is not just a normal data frame but it is a `tibble`. A `tibble` is a data frame which is tweaked to work better in the `tidyverse`. With the `nycflights13::flights` we are introduced to different type of variables:
+
+* `int`: integer
+* `dbl`: doubles or real numbers
+* `chr`: character vectors or strings
+* `dttm`: date-times (a date + a time)
+* `lgl`: logical, vectors containing `TRUE` and `FALSE`
+* `fctr`: factors, R uses those to represent categorical variables with fixed possible values
+* `date`: dates
+
+## Data Manipulation
+For manipulation of data I will be using the `dplyr` package from the `tidyverse` library. The key functions use for data manipulation are:
+
+* `filter()`: pick observations by their values
+* `arrange()`: reorder the rows
+* `select()`: pick variabls by their names
+* `mutate()`: create new variables with functions of existing variables
+* `summarise()`: collapse many values down to a single summary
+
+The first argumen to the function is the data frame, the subsequent arguments is what you want to do with the data frame using the variable names (without quotes). The result will be a new data frame.
+
+### `filter()` Function
+With the `filter()` it is possible to make a subset of observation based on their values. For example from the `nycflights13::flights` data set I would like to see the all the flights on April 1st.
+```{r}
+(apr1 <- filter(flights, month == 4, day == 1)) # save the data frame
+```
+
+To select which observation to filter by you can use the comparison operators: 
+
+* `>`: greater
+* `<`: less
+* `>=`: greater or equal
+* `<=`: less or eqaul
+* `!=`: not equal to
+* `==`: equal to
+
+Or the logical operators:
+
+* `&`: and
+* `|`: or
+* `!`: not
+
+The following code should find all flights that departed in November or December
+```{r}
+filter(flights, month == 11 | month == 12)
+```
+
+`filter()` can also be used in the context ogf missing values, `NA`. If you want to determine if there is a missing value the `is.na()` be used. It return either `FALSE` or `TRUE`. With the `filter()` function one can exclude or preserve the missing values.
+```{r}
+filter(flights, is.na(arr_time)) # finds all the rows of arr_time with NA values
+```
+
+### `arrange()` Function
+
