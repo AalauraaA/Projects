@@ -3,9 +3,9 @@
 Created on Sat May  9 16:38:10 2020
 
 @author: Laura
-
+------------------------------------------------------------------------------
 Iris Flower Data Set
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 The Iris Flower Dataset or Fisher's Iris data set is a multivariate data set 
 introduced by the British statistician and biologist Ronald Fisher in his 1936 
 paper The use of multiple measurements in taxonomic problems as an example of 
@@ -17,8 +17,9 @@ from each sample: the length and the width of the sepals and petals,
 in centimeters. Based on the combination of these four features, Fisher 
 developed a linear discriminant model to distinguish the species from each 
 other.
-
+------------------------------------------------------------------------------
 url: https://machinelearningmastery.com/machine-learning-in-python-step-by-step/
+------------------------------------------------------------------------------
 """
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -61,9 +62,9 @@ plt.show()
 # Because of the diagonal grouping this suggest high correlation and 
 # predictable relationship.
 
-# =============================================================================
+# ============================================================================
 # Creating Training and Testing Data Sets
-# =============================================================================
+# ============================================================================
 x = data.drop('Species', axis=1) # Values
 y = data['Species']              # Labels
 
@@ -117,9 +118,9 @@ plt.boxplot(results, labels=names)
 plt.title('Model Evaluation Result Comparison')
 plt.show()
 
-# =============================================================================
+# ============================================================================
 # Prediction with SVM Model on Test Data Set
-# =============================================================================
+# ============================================================================
 " Used the SVM Model to Predict with the Test Data "
 model = SVC(gamma='auto')
 model.fit(x_train, y_train)

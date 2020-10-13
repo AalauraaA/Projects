@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['..\\..\\..\\.spyder-py3\\temp.py', 'Titanic_DataSet\\Titantic_Data_Analysis.py', 'Machine Learning\\Iris_Flower_ML.py', 'Machine Learning\\MNIST_NeuralNetwork.py']
+recent_files = ['..\\..\\..\\..\\.spyder-py3\\temp.py', 'Machine_Learning\\SupervisedLearning\\Regression\\Linear_Regression.py', 'Python_Exercises\\A_Primer_on_Scientific_Programming_with_Python\\Chapter2\\Exercises.py']
 

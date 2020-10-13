@@ -24,9 +24,17 @@ Here x[0]-x[p] is the features of a single data point, a and b are parameters
 of the model that is learned. If the linear function is smaller than 0 then
 it is classified as -1 and if it is larger than 0 then it is classified as +1 
 
+For multiclass classification, the linear function is defined as:
+    y = a[0] * x[0] + a[1]*x[1] + ... + a[p] * x[p] + b
+where the class result from a confidence formular
+
 Linear models for classification the decision boundary is a linear function of
 the input. A linear classifier is a classifier that separates two classes 
 using a line, a plane, or a hyperplane.
+
+Linear models often perform well when the number of features is large compared 
+to the number of samples. They are also often used on very large datasets, 
+simply because it’s not feasible to train other models.
 
 The most common linear classification algorithms are the logistic regression
 and linear support vector machine (SVM). Both methods used the L2 
@@ -44,6 +52,20 @@ trade-off with parameter C that determine the strenght of the regularization.
       
       Low C will also cause the algorithms to try to adjust to the 'majority'
       of the data points.
+
+Strenght:
+    Fast to train and fast to predict
+    Scale to large dataset
+    Work well with sparse dataset
+    Easy to understand
+
+Weakness:
+    Not easy to interpret coefficient for highly correlated features
+
+***
+Go-to as a first algorithm to try, good for very large datasets, good for very 
+highdimensional data.
+***
 """
 # =============================================================================
 # Import Libraries
@@ -53,6 +75,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import make_blobs
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
@@ -70,6 +93,13 @@ plt.legend(["Class 0", "Class 1"], loc=4)
 plt.xlabel("First feature")
 plt.ylabel("Second feature")
 plt.show()
+
+" Synthetic Blobs Multiclass Dataset "
+X_blobs, y_blobs = make_blobs(random_state=42)
+mglearn.discrete_scatter(X_blobs[:, 0], X_blobs[:, 1], y_blobs)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+plt.legend(["Class 0", "Class 1", "Class 2"])
 
 " Real World Classification Data Set - Breast Cancer "
 #task is to learn to predict whether a tumor is maligant based on the 
@@ -180,12 +210,39 @@ plt.ylabel("Coefficient magnitude")
 plt.ylim(-5, 5)
 plt.legend(loc=3)
 
+# =============================================================================
+# Synthetic Blobs Multiclass Dataset - SVM
+# =============================================================================
+linear_svm = LinearSVC().fit(X_blobs, y_blobs)
 
+print("Coefficient shape: ", linear_svm.coef_.shape)
+print("Intercept shape: ", linear_svm.intercept_.shape)
+#Coefficient shape: (3, 2)
+#Intercept shape: (3,)
 
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+line = np.linspace(-15, 15)
+for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_,
+    mglearn.cm3.colors):
+    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+    plt.ylim(-10, 15)
+    plt.xlim(-10, 8)
+    plt.xlabel("Feature 0")
+    plt.ylabel("Feature 1")
+    plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1',
+    'Line class 2'], loc=(1.01, 0.3))
 
-
-
-
+" Prediction of Regions of 2D "
+mglearn.plots.plot_2d_classification(linear_svm, X, fill=True, alpha=.7)
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+line = np.linspace(-15, 15)
+for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_,
+mglearn.cm3.colors):
+    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+    plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1',
+    'Line class 2'], loc=(1.01, 0.3))
+    plt.xlabel("Feature 0")
+    plt.ylabel("Feature 1")
 
 
 

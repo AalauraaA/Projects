@@ -37,6 +37,10 @@ Strenght:
 Weakness:
     Larger training dataset lead to slower predictions
     Does not perform well on datasets with many features or sparse datasets
+
+***
+For small datasets, good as a baseline, easy to explain.
+***
 """
 # =============================================================================
 # Libraries Import

@@ -3,8 +3,9 @@
 Created on Thu Sep  3 10:38:11 2020
 
 @author: Laura
-
+------------------------------------------------------------------------------
 Recommendation System in Python
+------------------------------------------------------------------------------
 """
 import pandas as pd
 import numpy as np

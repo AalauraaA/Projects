@@ -3,16 +3,16 @@
 Created on Sun Sep 13 09:34:01 2020
 
 @author: Laura
-
-
+------------------------------------------------------------------------------
 Machine Learning Algorithms
+------------------------------------------------------------------------------
 """
 import pandas as pd
 from sklearn import linear_model, tree, svm, decomposition
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 
@@ -26,9 +26,9 @@ y = data['Species']              # Labels
 " 80% training data and 20% validation data "
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=1)
 
-# =============================================================================
-# Linear Regression
-# =============================================================================
+# ============================================================================
+# Linear Regression - Supervised - Regression
+# ============================================================================
 linear = linear_model.LinearRegression()
 
 # Train the model using training data
@@ -44,9 +44,9 @@ print('Intercept: \n', linear.intercept_)
 # Predict output
 predicted = linear.predict(x_test)
 
-# =============================================================================
-# Logistic Regression
-# =============================================================================
+# ============================================================================
+# Logistic Regression - Supervised - Classification
+# ============================================================================
 model = LogisticRegression()
 
 # Train the model using training data
@@ -62,9 +62,9 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
-# Decision Tree
-# =============================================================================
+# ============================================================================
+# Decision Tree - Supervised
+# ============================================================================
 model_class = tree.DecisionTreeClassifier(criterion='gini') # for classification
 model_reg = tree.DecisionTreeRegressor()                    # for regression
 
@@ -87,9 +87,9 @@ print('Intercept: \n', model_reg.intercept_)
 predicted = model_class.predict(x_test)
 predicted = model_reg.predict(x_test)
 
-# =============================================================================
-# Support Vector Machine (SVM)
-# =============================================================================
+# ============================================================================
+# Support Vector Machine (SVM) - Supervised - Classification
+# ============================================================================
 model = svm.svc()
 
 # Train the model using training data
@@ -105,9 +105,9 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
-# Naive Bayes
-# =============================================================================
+# ============================================================================
+# Naive Bayes - Supervised
+# ============================================================================
 model = GaussianNB()
 
 # Train the model using training data
@@ -123,10 +123,12 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
-# K-Nearest Neighbors (kNN)
-# =============================================================================
+# ============================================================================
+# K-Nearest Neighbors (kNN) - Supervised - Classification and Regression
+# ============================================================================
 model = KNeighborsClassifier(n_neighbors=6) #default is 5
+# model = KNeighborsRegressor(n_neighbors=6) #default is 5
+
 # Train the model using training data
 model.fit(x_train, y_train)
 
@@ -140,9 +142,9 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
+# ============================================================================
 # k-Means
-# =============================================================================
+# ============================================================================
 model = KMeans(n_clusters=3, random_state=0)
 
 # Train the model using training data
@@ -158,9 +160,9 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
+# ============================================================================
 # Random Forest
-# =============================================================================
+# ============================================================================
 model = RandomForestClassifier()
 
 # Train the model using training data
@@ -176,9 +178,9 @@ print('Intercept: \n', model.intercept_)
 # Predict output
 predicted = model.predict(x_test)
 
-# =============================================================================
+# ============================================================================
 # Dimensionality Reduction Algorithms 
-# =============================================================================
+# ============================================================================
 pca = decomposition.PCA()
 fa = decomposition.FactorAnalysis()
 
@@ -186,9 +188,9 @@ fa = decomposition.FactorAnalysis()
 train_reduced = pca.fit_transform(x_train)
 test_reduced = pca.transform(x_test)
 
-# =============================================================================
+# ============================================================================
 # Gradient Boosting & AdaBoost
-# =============================================================================
+# ============================================================================
 model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
 
 # Train the model using training data

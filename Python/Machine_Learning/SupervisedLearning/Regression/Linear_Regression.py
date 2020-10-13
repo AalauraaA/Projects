@@ -34,6 +34,10 @@ For datasets with many features, linear models can be very powerful. If you
 have more features than training data points, any target y can be perfectly 
 modeled (on the training set) as a linear function.
 
+Linear models often perform well when the number of features is large compared 
+to the number of samples. They are also often used on very large datasets, 
+simply because it’s not feasible to train other models.
+
 Linear regression, or ordinary least squares (OLS), is the simplest and most 
 classic linear method for regression. Linear regression finds the parameters 
 a and b that minimize the mean squared error between predictions and the true 
@@ -42,6 +46,20 @@ regression targets, y, on the training set.
 For small datasets the linear regression model is very simple and is 
 underfitted but for higher-dimensional datasets the linear model becomes
 powerfull and have a higher chance of overfitting.
+
+Strenght:
+    Fast to train and fast to predict
+    Scale to large dataset
+    Work well with sparse dataset
+    Easy to understand
+
+Weakness:
+    Not easy to interpret coefficient for highly correlated features
+    
+***
+Go-to as a first algorithm to try, good for very large datasets, good for very 
+highdimensional data.
+***
 """
 # =============================================================================
 # Import Libraries

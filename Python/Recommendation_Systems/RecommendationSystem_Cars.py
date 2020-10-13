@@ -3,19 +3,19 @@
 Created on Thu Sep  3 10:38:11 2020
 
 @author: Laura
-
+------------------------------------------------------------------------------
 Recommendation System in Python
+------------------------------------------------------------------------------
 """
 import pandas as pd
 import numpy as np
 import sklearn
-
-# =============================================================================
-# Content-Based Recommendation System Based on Machine Learning
-# =============================================================================
-" Nearest Neighbors Algorithm "
 from sklearn.neighbors import NearestNeighbors
 
+# ============================================================================
+# Content-Based Recommendation System Based on Machine Learning
+# ============================================================================
+" Nearest Neighbors Algorithm "
 # Import of data
 cars = pd.read_csv('mtcars.csv')
 cars.columns = ['car_names', 'mpg', 'cyl', 'disp', 'hp', 'drat', 'wt', 'qsec', 'vs', 'am', 'gear', 'carb']
